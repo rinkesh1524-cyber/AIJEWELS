@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { signUp, supabase } from "@/lib/auth";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [ownerName, setOwnerName] = useState("");
+  const [businessType, setBusinessType] = useState("Silver Jewellery");
+  const [phone, setPhone] = useState("");
 
   async function handleSignup() {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { error } = await signUp(email, password);
 
     if (error) {
       alert(error.message);
@@ -26,6 +27,39 @@ export default function SignupPage() {
         <h1 className="mb-6 text-3xl font-bold text-center">
           AIJewels Sign Up
         </h1>
+        <input
+  className="mb-4 w-full rounded-lg border p-3"
+  placeholder="Business Name"
+  value={businessName}
+  onChange={(e) => setBusinessName(e.target.value)}
+/>
+
+<input
+  className="mb-4 w-full rounded-lg border p-3"
+  placeholder="Owner Name"
+  value={ownerName}
+  onChange={(e) => setOwnerName(e.target.value)}
+/>
+
+<select
+  className="mb-4 w-full rounded-lg border p-3"
+  value={businessType}
+  onChange={(e) => setBusinessType(e.target.value)}
+>
+  <option>Silver Jewellery</option>
+  <option>Gold Jewellery</option>
+  <option>Diamond Jewellery</option>
+  <option>Artificial Jewellery</option>
+  <option>Mixed Jewellery</option>
+</select>
+
+<input
+  className="mb-4 w-full rounded-lg border p-3"
+  placeholder="Phone Number"
+  value={phone}
+  onChange={(e) => setPhone(e.target.value)}
+/>
+
 
         <input
           className="mb-4 w-full rounded-lg border p-3"
