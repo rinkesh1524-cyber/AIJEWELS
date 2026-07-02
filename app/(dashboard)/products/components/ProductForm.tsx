@@ -1,25 +1,46 @@
 "use client";
 
 import { useState } from "react";
+import { createProduct, updateProduct } from "@/lib/products";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+interface ProductFormProps {
+  mode?: "create" | "edit";
+  initialData?: {
+    id?: string;
+    name: string;
+    category: string;
+    metal: string;
+    purity: string;
+    quantity: number;
+    gross_weight: number;
+    net_weight: number;
+    purchase_price: number;
+    making_charges: number;
+    selling_price: number;
+  };
+}
+export default function ProductForm({
+  mode = "create",
+  initialData,
+}: ProductFormProps) {
+  const [loading, setLoading] = useState(false);
 
-export default function ProductForm() {
   const [form, setForm] = useState({
-    name: "",
-    category: "",
-    metal: "",
-    purity: "",
-    quantity: 0,
-    gross_weight: "",
-    net_weight: "",
-    purchase_price: "",
-    making_charges: "",
-    selling_price: "",
-  });
+  name: initialData?.name ?? "",
+  category: initialData?.category ?? "",
+  metal: initialData?.metal ?? "",
+  purity: initialData?.purity ?? "",
+  quantity: initialData?.quantity ?? 0,
+  gross_weight: String(initialData?.gross_weight ?? ""),
+  net_weight: String(initialData?.net_weight ?? ""),
+  purchase_price: String(initialData?.purchase_price ?? ""),
+  making_charges: String(initialData?.making_charges ?? ""),
+  selling_price: String(initialData?.selling_price ?? ""),
+});
 
   async function handleSave() {
     if (!form.name.trim()) {
@@ -27,9 +48,52 @@ export default function ProductForm() {
       return;
     }
 
-    console.log("Product Data:", form);
+    try {
+      setLoading(true);
 
-    alert("Product captured successfully! (Database save coming next)");
+      const productData = {
+  name: form.name,
+  category: form.category,
+  metal: form.metal,
+  purity: form.purity,
+  quantity: form.quantity,
+  gross_weight: Number(form.gross_weight) || 0,
+  net_weight: Number(form.net_weight) || 0,
+  purchase_price: Number(form.purchase_price) || 0,
+  making_charges: Number(form.making_charges) || 0,
+  selling_price: Number(form.selling_price) || 0,
+};
+
+if (mode === "edit" && initialData?.id) {
+  await updateProduct(initialData.id, productData);
+} else {
+  await createProduct(productData);
+}
+
+      alert(
+  mode === "edit"
+    ? "✅ Product updated successfully!"
+    : "✅ Product saved successfully!"
+);
+
+      setForm({
+        name: "",
+        category: "",
+        metal: "",
+        purity: "",
+        quantity: 0,
+        gross_weight: "",
+        net_weight: "",
+        purchase_price: "",
+        making_charges: "",
+        selling_price: "",
+      });
+    } catch (error) {
+      console.error(error);
+      alert("❌ Failed to save product.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -185,8 +249,12 @@ export default function ProductForm() {
 
         <div className="flex justify-end">
 
-          <Button size="lg" onClick={handleSave}>
-            Save Product
+          <Button
+            size="lg"
+            onClick={handleSave}
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Save Product"}
           </Button>
 
         </div>
