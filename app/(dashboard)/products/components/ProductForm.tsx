@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createProduct, updateProduct } from "@/lib/products";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ export default function ProductForm({
   initialData,
 }: ProductFormProps) {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const [form, setForm] = useState({
   name: initialData?.name ?? "",
@@ -75,6 +77,8 @@ if (mode === "edit" && initialData?.id) {
     ? "✅ Product updated successfully!"
     : "✅ Product saved successfully!"
 );
+router.push("/products");
+router.refresh();
 
       setForm({
         name: "",

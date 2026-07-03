@@ -104,3 +104,82 @@ export async function updateProduct(
 
   return data;
 }
+export async function getInventoryStats() {
+  const { data, error } = await supabase
+    .from("products")
+    .select("quantity, selling_price");
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  const totalProducts = data.length;
+
+  const totalQuantity = data.reduce(
+    (sum, product) => sum + (product.quantity || 0),
+    0
+  );
+
+  const inventoryValue = data.reduce(
+    (sum, product) =>
+      sum + (product.quantity || 0) * (product.selling_price || 0),
+    0
+  );
+
+  const lowStock = data.filter(
+    (product) => (product.quantity || 0) <= 5
+  ).length;
+
+  return {
+    totalProducts,
+    totalQuantity,
+    inventoryValue,
+    lowStock,
+  };
+}
+export async function getAllProducts() {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, name, quantity")
+    .order("name");
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function stockIn(
+  productId: string,
+  quantity: number
+) {
+  // Get current product
+  const { data: product, error: fetchError } = await supabase
+    .from("products")
+    .select("quantity")
+    .eq("id", productId)
+    .single();
+
+  if (fetchError) throw fetchError;
+
+  // Update quantity
+  const { error: updateError } = await supabase
+    .from("products")
+    .update({
+      quantity: (product.quantity || 0) + quantity,
+    })
+    .eq("id", productId);
+
+  if (updateError) throw updateError;
+
+  // Save transaction
+  const { error: transactionError } = await supabase
+    .from("inventory_transactions")
+    .insert({
+      product_id: productId,
+      transaction_type: "IN",
+      quantity,
+    });
+
+  if (transactionError) throw transactionError;
+}

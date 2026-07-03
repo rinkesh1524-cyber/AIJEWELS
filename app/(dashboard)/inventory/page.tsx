@@ -1,52 +1,44 @@
-export default function InventoryPage() {
+import { getInventoryStats } from "@/lib/products";
+
+export default async function InventoryPage() {
+  const stats = await getInventoryStats();
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">📦 Inventory</h1>
+    <div className="p-8">
+      <h1 className="mb-8 text-3xl font-bold">
+        Inventory Dashboard
+      </h1>
 
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg">
-          + Add Product
-        </button>
-      </div>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
 
-      <div className="bg-white rounded-xl shadow p-6">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b text-left">
-              <th className="py-3">Product</th>
-              <th>Category</th>
-              <th>Weight</th>
-              <th>Stock</th>
-              <th>Status</th>
-            </tr>
-          </thead>
+        <div className="rounded-xl bg-white p-6 shadow">
+          <h2 className="text-gray-500">📦 Total Products</h2>
+          <p className="mt-2 text-3xl font-bold">
+            {stats.totalProducts}
+          </p>
+        </div>
 
-          <tbody>
-            <tr>
-              <td className="py-4">Silver Ring</td>
-              <td>Ring</td>
-              <td>12 g</td>
-              <td>15</td>
-              <td>
-                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                  In Stock
-                </span>
-              </td>
-            </tr>
+        <div className="rounded-xl bg-white p-6 shadow">
+          <h2 className="text-gray-500">📊 Total Quantity</h2>
+          <p className="mt-2 text-3xl font-bold">
+            {stats.totalQuantity}
+          </p>
+        </div>
 
-            <tr>
-              <td className="py-4">Silver Chain</td>
-              <td>Chain</td>
-              <td>45 g</td>
-              <td>8</td>
-              <td>
-                <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
-                  Low Stock
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="rounded-xl bg-white p-6 shadow">
+          <h2 className="text-gray-500">💰 Inventory Value</h2>
+          <p className="mt-2 text-3xl font-bold">
+            ₹{stats.inventoryValue.toLocaleString()}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-white p-6 shadow">
+          <h2 className="text-gray-500">⚠️ Low Stock</h2>
+          <p className="mt-2 text-3xl font-bold text-red-600">
+            {stats.lowStock}
+          </p>
+        </div>
+
       </div>
     </div>
   );
