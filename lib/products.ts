@@ -183,3 +183,64 @@ export async function stockIn(
 
   if (transactionError) throw transactionError;
 }
+export async function stockOut(
+  productId: string,
+  quantity: number
+) {
+  // Get current stock
+  const { data: product, error: fetchError } = await supabase
+    .from("products")
+    .select("quantity")
+    .eq("id", productId)
+    .single();
+
+  if (fetchError) throw fetchError;
+
+  const currentStock = product.quantity || 0;
+
+  if (currentStock < quantity) {
+    throw new Error("Not enough stock available.");
+  }
+
+  // Update stock
+  const { error: updateError } = await supabase
+    .from("products")
+    .update({
+      quantity: currentStock - quantity,
+    })
+    .eq("id", productId);
+
+  if (updateError) throw updateError;
+
+  // Save transaction
+  const { error: transactionError } = await supabase
+    .from("inventory_transactions")
+    .insert({
+      product_id: productId,
+      transaction_type: "OUT",
+      quantity,
+    });
+
+  if (transactionError) throw transactionError;
+}
+export async function getInventoryTransactions() {
+  const { data, error } = await supabase
+    .from("inventory_transactions")
+    .select(`
+      id,
+      transaction_type,
+      quantity,
+      created_at,
+      products (
+        name
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return data;
+}

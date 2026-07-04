@@ -1,13 +1,15 @@
-export default function StockOutPage() {
+import { getAllProducts } from "@/lib/products";
+import StockOutForm from "../components/StockOutForm";
+export default async function StockOutPage() {
+  const products = await getAllProducts();
+
   return (
     <div className="p-8">
-      <h1 className="mb-6 text-3xl font-bold">
+      <h1 className="mb-8 text-3xl font-bold">
         📤 Stock Out
       </h1>
 
-      <p className="text-gray-600">
-        Stock Out module coming next...
-      </p>
+      <StockOutForm products={products} />
     </div>
   );
 }
